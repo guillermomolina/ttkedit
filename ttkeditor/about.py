@@ -22,10 +22,10 @@
 # SOFTWARE.
 
 
-
 from TermTk.TTkCore.color import TTkColor
 from TermTk import TTkWindow
 from .config import TTKEditorConfig
+
 
 class TTKEditorAbout(TTkWindow):
     ttkeditor = [
@@ -40,17 +40,20 @@ class TTKEditorAbout(TTkWindow):
 
     def __init__(self, *args, **kwargs):
         TTkWindow.__init__(self, *args, **kwargs)
-        self._name = kwargs.get('name' , 'About' )
+        self._name = kwargs.get('name', 'About')
         self.setTitle('Guillermo A. Molina proudly presents...')
-        self.resize(57,14)
+        self.resize(57, 14)
 
     def paintEvent(self, canvas):
-        c = [0xFF,0xFF,0xFF]
+        c = [0xFF, 0xFF, 0xFF]
         for y, line in enumerate(TTKEditorAbout.ttkeditor):
-            canvas.drawText(pos=(3,3+y),text=line, color=TTkColor.fg(f'#{c[0]:02X}{c[1]:02X}{c[2]:02X}'))
-            c[2]-=0x18
-            c[0]-=0x08
-        canvas.drawText(pos=(35,10),text=f"  Version: {TTKEditorConfig.version}", color=TTkColor.fg('#AAAAFF'))
-        canvas.drawText(pos=( 6,12),text=f"https://github.com/guillermomolina/ttkeditor", color=TTkColor.fg('#44FFFF'))
+            canvas.drawText(pos=(3, 3+y), text=line,
+                            color=TTkColor.fg(f'#{c[0]:02X}{c[1]:02X}{c[2]:02X}'))
+            c[2] -= 0x18
+            c[0] -= 0x08
+        canvas.drawText(pos=(35, 10), text=f"  Version: {
+                        TTKEditorConfig.version}", color=TTkColor.fg('#AAAAFF'))
+        canvas.drawText(pos=(
+            6, 12), text=f"https://github.com/guillermomolina/ttkeditor", color=TTkColor.fg('#44FFFF'))
 
         TTkWindow.paintEvent(self, canvas)

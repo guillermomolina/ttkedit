@@ -34,17 +34,17 @@ from TermTk import TTkAbout
 from TermTk import TTkFileDialogPicker
 from TermTk import TTkFileTree
 from TermTk import TTkTextEdit
-from TermTk import TTkAppTemplate
 from TermTk import TTkShortcut
+from TermTk import TTkAppTemplate
 from TermTk import pyTTkSlot
 
 from .config import *
 from .about import *
 from .texteditview import TTKEditorTextEditView
 from .textdocument import TTKEditorTextDocument
-from .statusbarlayout import TTkEditorStatusBarLayout
+# from .statusbarlayout import TTkEditorStatusBarLayout
 
-class TTkEditor(TTkAppTemplate):
+class TTkEditorApp(TTkAppTemplate):
     __slots__ = ('_toolBar', '_fileNameLabel', '_modified',
                  '_sigslotEditor', '_treeInspector', '_windowEditor', '_notepad',
                  '_fileName', '_currentPath',
@@ -97,9 +97,9 @@ class TTkEditor(TTkAppTemplate):
         self._kodeTab = TTkKodeTab(border=False, closable=True)
         appTemplate.setWidget(self._kodeTab, TTkAppTemplate.MAIN)
 
-        self._statusBar = TTkEditorStatusBarLayout(maxHeight=1)
-        self._statusBar.addLabel("ONLINE")
-        appTemplate.setWidget(self._statusBar, TTkAppTemplate.FOOTER, fixed=True)
+        # self._statusBar = TTkEditorStatusBarLayout(maxHeight=1)
+        # self._statusBar.addLabel("ONLINE")
+        # appTemplate.setStatusBar(self._statusBar, TTkAppTemplate.MAIN)
 
         
     pyTTkSlot()

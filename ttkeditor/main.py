@@ -26,12 +26,10 @@ import argparse
 import appdirs
 
 from TermTk import TTk, TTkLog, TTkTheme, TTkTerm
-
 from TermTk import TTkGridLayout
 
-from .editor import TTkEditor
-from .config import *
-from .about import *
+from .app import TTkEditorApp
+from .config import TTKEditorConfig
 
 def main():
     TTKEditorConfig.pathCfg = appdirs.user_config_dir("ttkeditor")
@@ -58,7 +56,7 @@ def main():
     TTkTheme.loadTheme(TTkTheme.NERD)
 
     root = TTk(
-            title="TTk Edit",
+            title="TTk Editor",
             mouseTrack=True,
             layout=TTkGridLayout(),
             sigmask=(
@@ -67,7 +65,7 @@ def main():
                 TTkTerm.Sigmask.CTRL_S |
                 TTkTerm.Sigmask.CTRL_Z ))
 
-    root.layout().addWidget(_d:=TTkEditor(fileName=args.filename))
+    root.layout().addWidget(_d:=TTkEditorApp(fileName=args.filename))
 
     # if args.showkeys:
     #     _d.setWidget(widget=TTkKeyPressView(maxHeight=3), position=_d.FOOTER, size=3)
