@@ -33,7 +33,7 @@ def get_lookup():
     '''get version by way of the version file
     '''
     lookup = dict()
-    version_file = os.path.join('ttkedit', 'version.py')
+    version_file = os.path.join('ttkeditor', 'version.py')
     with open(version_file, encoding='utf-8') as filey:
         exec(filey.read(), lookup)
     return lookup
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         install_requires=INSTALL_REQUIRES,
         entry_points={
             'console_scripts': [
-                 'ttkedit = ttkedit:main',
+                 'ttkeditor = ttkeditor:main',
             ]
         },
         classifiers=[

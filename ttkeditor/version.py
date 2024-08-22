@@ -21,11 +21,11 @@
 # SOFTWARE.
 
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 AUTHOR = "Guillermo Adrián Molina"
 AUTHOR_EMAIL = "guillermoadrianmolina@gmail.com"
-NAME = "ttkedit"
-PACKAGE_URL = "www.github.com/guillermomolina/ttkedit/"
+NAME = "ttkeditor"
+PACKAGE_URL = "www.github.com/guillermomolina/ttkeditor/"
 KEYWORDS = "ttk editor"
 DESCRIPTION = "Terminal ToolKit Editor"
 LICENSE = "LICENSE"

@@ -24,7 +24,7 @@
 
 import os
 import yaml
-from ttkedit.version import __version__, NAME
+from ttkeditor.version import __version__, NAME
 
 class TTkEditConfig:
     version=__version__

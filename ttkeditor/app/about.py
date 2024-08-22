@@ -23,36 +23,34 @@
 
 
 
-from TermTk.TTkCore.log import TTkLog
 from TermTk.TTkCore.color import TTkColor
 from TermTk import TTkWindow
 from .config import TTkEditConfig
 
 class TTkEditAbout(TTkWindow):
-    ttkedit = [
-        "__________________    _______              ",
-        "\_______________ /   / / ____)  ┌─┐─┐─┐   ",
-        "    /\    /\   | |__/ /| |__  __| |─┘ └─┐ ",
-        "   |  |  |  |  |  _  / |  __|/ _  |─┐  ┌┘ ",
-        "   |  |  |  |  | | \ \ | |__( (_| | |  \_ ",
-        "   |  |  |  |  └─┘  \_)|_____)____|_|\___)",
-        "   |  |  |  |                              ",
-        "   └──┘  └──┘                              ",]
+    ttkeditor = [
+        "__________________    _______                      ",
+        "\_______________ /   / / ____)  ┌─┐─┐─┐            ",
+        "    /\    /\   | |__/ /| |__  __| |─┘ └─┐ __   ___ ",
+        "   |  |  |  |  |  _  / |  __|/ _  |─┐  ┌┘/ _ \|  _|",
+        "   |  |  |  |  | | \ \ | |__( (_| | |  \( (_| ) |  ",
+        "   |  |  |  |  └─┘  \_)|_____)____|_|\___)___/|_|  ",
+        "   |  |  |  |                                      ",
+        "   └──┘  └──┘                                      ",]
 
     def __init__(self, *args, **kwargs):
         TTkWindow.__init__(self, *args, **kwargs)
         self._name = kwargs.get('name' , 'About' )
         self.setTitle('Guillermo A. Molina proudly presents...')
-        self.resize(48,15)
+        self.resize(57,14)
 
     def paintEvent(self, canvas):
         c = [0xFF,0xFF,0xFF]
-        for y, line in enumerate(TTkEditAbout.ttkedit):
+        for y, line in enumerate(TTkEditAbout.ttkeditor):
             canvas.drawText(pos=(3,3+y),text=line, color=TTkColor.fg(f'#{c[0]:02X}{c[1]:02X}{c[2]:02X}'))
             c[2]-=0x18
             c[0]-=0x08
-        canvas.drawText(pos=(26, 9),text=f"  Version: {TTkEditConfig.version}", color=TTkColor.fg('#AAAAFF'))
-        canvas.drawText(pos=(14,11),text=f"Powered By, pyTermTk")
-        canvas.drawText(pos=( 3,13),text=f"https://github.com/guillermomolina/ttkedit", color=TTkColor.fg('#44FFFF'))
+        canvas.drawText(pos=(35,10),text=f"  Version: {TTkEditConfig.version}", color=TTkColor.fg('#AAAAFF'))
+        canvas.drawText(pos=( 6,12),text=f"https://github.com/guillermomolina/ttkeditor", color=TTkColor.fg('#44FFFF'))
 
         TTkWindow.paintEvent(self, canvas)

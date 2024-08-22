@@ -44,7 +44,7 @@ from .texteditview import TTkEditTextEditView
 from .textdocument import TTkEditTextDocument
 from .statusbar import TTkEditStatusBar
 
-class TTkEdit(TTkAppTemplate):
+class TTkEditor(TTkAppTemplate):
     __slots__ = ('_toolBar', '_fileNameLabel', '_modified',
                  '_sigslotEditor', '_treeInspector', '_windowEditor', '_notepad',
                  '_fileName', '_currentPath',

@@ -29,12 +29,12 @@ from TermTk import TTk, TTkLog, TTkTheme, TTkTerm
 
 from TermTk import TTkGridLayout
 
-from .edit import TTkEdit
+from .editor import TTkEditor
 from .config import *
 from .about import *
 
 def main():
-    TTkEditConfig.pathCfg = appdirs.user_config_dir("ttkedit")
+    TTkEditConfig.pathCfg = appdirs.user_config_dir("ttkeditor")
 
     parser = argparse.ArgumentParser()
     # parser.add_argument('-f', help='Full Screen', action='store_true')
@@ -67,7 +67,7 @@ def main():
                 TTkTerm.Sigmask.CTRL_S |
                 TTkTerm.Sigmask.CTRL_Z ))
 
-    root.layout().addWidget(_d:=TTkEdit(fileName=args.filename))
+    root.layout().addWidget(_d:=TTkEditor(fileName=args.filename))
 
     # if args.showkeys:
     #     _d.setWidget(widget=TTkKeyPressView(maxHeight=3), position=_d.FOOTER, size=3)

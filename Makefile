@@ -13,5 +13,5 @@ deployTest: .venv
 
 deploy: .venv
 	. .venv/bin/activate ; \
-	python3 -m twine upload tmp/dist/* --repository ttkedit --verbose
+	python3 -m twine upload tmp/dist/* --repository ttkeditor --verbose
 
