@@ -6,7 +6,8 @@
 
 
 # ttkedit
-TerminalToolKit (Studio) Code (editor)
+
+Fork of TerminalToolKit (Studio) Code (editor) [ttkode](https://github.com/ceccopierangiolieugenio/ttkode/blob/main/README.md)
 
 A hopefully fast and mesmerizingly advanced [text-based](https://en.wikipedia.org/wiki/Text-based_user_interface) code editor inspired by [vscode](https://code.visualstudio.com)
 
