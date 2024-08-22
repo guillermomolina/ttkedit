@@ -34,26 +34,26 @@ from .config import *
 from .about import *
 
 def main():
-    TTkEditConfig.pathCfg = appdirs.user_config_dir("ttkeditor")
+    TTKEditorConfig.pathCfg = appdirs.user_config_dir("ttkeditor")
 
     parser = argparse.ArgumentParser()
     # parser.add_argument('-f', help='Full Screen', action='store_true')
     parser.add_argument(
-        '-c', help=f'config folder (default: "{TTkEditConfig.pathCfg}")', default=TTkEditConfig.pathCfg)
+        '-c', help=f'config folder (default: "{TTKEditorConfig.pathCfg}")', default=TTKEditorConfig.pathCfg)
     parser.add_argument('filename', type=str, nargs='*',
                         help='the filename/s')
     args = parser.parse_args()
 
     # TTkLog.use_default_file_logging()
 
-    TTkEditConfig.pathCfg = args.c
-    TTkLog.debug(f"Config Path: {TTkEditConfig.pathCfg}")
+    TTKEditorConfig.pathCfg = args.c
+    TTkLog.debug(f"Config Path: {TTKEditorConfig.pathCfg}")
 
-    TTkEditConfig.load()
+    TTKEditorConfig.load()
 
-    # if 'theme' not in TTkEditConfig.options:
-    #     TTkEditConfig.options['theme'] = 'NERD'
-    # optionsLoadTheme(TTkEditConfig.options['theme'])
+    # if 'theme' not in TTKEditorConfig.options:
+    #     TTKEditorConfig.options['theme'] = 'NERD'
+    # optionsLoadTheme(TTKEditorConfig.options['theme'])
 
     TTkTheme.loadTheme(TTkTheme.NERD)
 

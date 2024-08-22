@@ -25,4 +25,4 @@
 from .config import *
 # from .glbl import *
 from .main import *
-from .textdocument import TTkEditTextDocument
+from .textdocument import TTKEditorTextDocument

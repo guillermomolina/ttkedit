@@ -40,9 +40,9 @@ from TermTk import pyTTkSlot
 
 from .config import *
 from .about import *
-from .texteditview import TTkEditTextEditView
-from .textdocument import TTkEditTextDocument
-from .statusbar import TTkEditStatusBar
+from .texteditview import TTKEditorTextEditView
+from .textdocument import TTKEditorTextDocument
+from .statusbarlayout import TTkEditorStatusBarLayout
 
 class TTkEditor(TTkAppTemplate):
     __slots__ = ('_toolBar', '_fileNameLabel', '_modified',
@@ -61,21 +61,22 @@ class TTkEditor(TTkAppTemplate):
         appTemplate = self
 
         appTemplate.setMenuBar(
-            appMenuBar := TTkMenuBarLayout(), TTkAppTemplate.HEADER)
-        appTemplate.setFixed(True, TTkAppTemplate.HEADER)
+            appMenuBar := TTkMenuBarLayout(), TTkAppTemplate.MAIN)
+        # appTemplate.setFixed(True, TTkAppTemplate.HEADER)
 
         fileMenu = appMenuBar.addMenu("&File")
         fileMenu.addMenu("&Open").menuButtonClicked.connect(
             self._showFileDialog)
         fileMenu.addMenu("&Close")
         fileMenu.addMenu("E&xit Alt+X").menuButtonClicked.connect(self._quit)
+        TTkShortcut(TTkK.ALT | TTkK.Key_X).activated.connect(self._quit)
 
         editMenu = appMenuBar.addMenu("&Edit")
         editMenu.addMenu("Search")
         editMenu.addMenu("Replace")
 
         def _showAbout(btn):
-            TTkHelper.overlay(None, TTkEditAbout(), 30, 10)
+            TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
 
         def _showAboutTTk(btn):
             TTkHelper.overlay(None, TTkAbout(), 30, 10)
@@ -96,12 +97,11 @@ class TTkEditor(TTkAppTemplate):
         self._kodeTab = TTkKodeTab(border=False, closable=True)
         appTemplate.setWidget(self._kodeTab, TTkAppTemplate.MAIN)
 
-        self._statusBar = TTkEditStatusBar(maxHeight=1)
+        self._statusBar = TTkEditorStatusBarLayout(maxHeight=1)
         self._statusBar.addLabel("ONLINE")
         appTemplate.setWidget(self._statusBar, TTkAppTemplate.FOOTER, fixed=True)
 
-        TTkShortcut(TTkK.ALT | TTkK.Key_X).activated.connect(self._quit)
-
+        
     pyTTkSlot()
 
     def _showFileDialog(self):
@@ -117,9 +117,9 @@ class TTkEditor(TTkAppTemplate):
         else:
             with open(filePath, 'r') as f:
                 content = f.read()
-            doc = TTkEditTextDocument(text=content, filePath=filePath)
+            doc = TTKEditorTextDocument(text=content, filePath=filePath)
             self._documents[filePath] = {'doc': doc, 'tabs': []}
-        tview = TTkEditTextEditView(document=doc, readOnly=False)
+        tview = TTKEditorTextEditView(document=doc, readOnly=False)
         tedit = TTkTextEdit(textEditView=tview,
                             lineNumber=True, lineNumberStarting=1)
         doc.kodeHighlightUpdate.connect(tedit.update)

@@ -35,10 +35,10 @@ from TermTk import TTkColor, TTkColorGradient
 from TermTk import pyTTkSlot, pyTTkSignal
 
 from TermTk import TTkTextDocument
-from .formatter import TTkEditFormatter
+from .formatter import TTKEditorFormatter
 
 
-class TTkEditTextDocument(TTkTextDocument):
+class TTKEditorTextDocument(TTkTextDocument):
     _linesRefreshed = 30
     __slots__ = (
         '_filePath', '_timerRefresh',
@@ -51,14 +51,14 @@ class TTkEditTextDocument(TTkTextDocument):
         self._kodeDocMutex = Lock()
         self._lexer = None
         self._blocks = []
-        self._formatter = TTkEditFormatter(style='gruvbox-dark')
+        self._formatter = TTKEditorFormatter(style='gruvbox-dark')
         super().__init__(*args, **kwargs)
         self._filePath = kwargs.get('filePath', "")
         self._timerRefresh = TTkTimer()
         self._timerRefresh.timeout.connect(self._refreshEvent)
         self._timerRefresh.start(0.3)
         self._changedContent = (0, 0, len(self._dataLines))
-        self._refreshContent = (0, TTkEditTextDocument._linesRefreshed)
+        self._refreshContent = (0, TTKEditorTextDocument._linesRefreshed)
         self.contentsChange.connect(
             lambda a, b, c: TTkLog.debug(f"{a=} {b=} {c=}"))
         self.contentsChange.connect(self._saveChangedContent)
@@ -72,7 +72,7 @@ class TTkEditTextDocument(TTkTextDocument):
             self._changedContent = (a, b, c)
         if not self._refreshContent:
             self._refreshContent = (
-                self._changedContent[0], TTkEditTextDocument._linesRefreshed)
+                self._changedContent[0], TTKEditorTextDocument._linesRefreshed)
         self._timerRefresh.start(0.1)
 
     @pyTTkSlot()
@@ -130,7 +130,7 @@ class TTkEditTextDocument(TTkTextDocument):
         tsl1 = [TTkString()]*(offset+1)
         block = [0]*(offset+1)
 
-        kfd = TTkEditFormatter.Data(tsl1, block)
+        kfd = TTKEditorFormatter.Data(tsl1, block)
         self._formatter.setDl(kfd)
 
         highlight(rawt, self._lexer, self._formatter)
@@ -152,7 +152,7 @@ class TTkEditTextDocument(TTkTextDocument):
         elif kfd.multiline is not None:
             self._refreshContent = (ra+kfd.multiline, rb << 1)
         elif (ra+rb) < len(self._dataLines):
-            self._refreshContent = (ra+rb, TTkEditTextDocument._linesRefreshed)
+            self._refreshContent = (ra+rb, TTKEditorTextDocument._linesRefreshed)
         else:
             self._refreshContent = None
         # TTkLog.debug(f"{self._refreshContent=}")

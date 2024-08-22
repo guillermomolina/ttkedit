@@ -24,7 +24,7 @@
 
 import copy
 
-from . import TTkEditConfig 
+from . import TTKEditorConfig 
 # from . import TloggGlbl
 
 from TermTk import *
@@ -38,7 +38,7 @@ def optionsLoadTheme(theme):
         TTkTheme.loadTheme(TTkTheme.NERD)
 
 def optionsFormLayout(win):
-    options = copy.deepcopy(TTkEditConfig.options)
+    options = copy.deepcopy(TTKEditorConfig.options)
 
     retLayout    = TTkGridLayout()
     bottomLayout = TTkGridLayout()
@@ -61,8 +61,8 @@ def optionsFormLayout(win):
         if r1.checkState() == TTkK.Checked: options['theme'] = 'ASCII'
         if r2.checkState() == TTkK.Checked: options['theme'] = 'UTF8'
         if r3.checkState() == TTkK.Checked: options['theme'] = 'NERD'
-        TTkEditConfig.options = options
-        TTkEditConfig.save(searches=False, filters=False, colors=False, options=True)
+        TTKEditorConfig.options = options
+        TTKEditorConfig.save(searches=False, filters=False, colors=False, options=True)
         optionsLoadTheme(options['theme'])
         # TloggGlbl.refreshViews()
         TTkHelper.updateAll()

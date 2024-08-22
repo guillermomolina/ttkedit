@@ -26,7 +26,7 @@ import os
 import yaml
 from ttkeditor.version import __version__, NAME
 
-class TTkEditConfig:
+class TTKEditorConfig:
     version=__version__
     name=NAME
     cfgVersion = '1.0'
@@ -36,22 +36,22 @@ class TTkEditConfig:
 
     @staticmethod
     def save(searches=True, filters=True, colors=True, options=True):
-        os.makedirs(TTkEditConfig.pathCfg, exist_ok=True)
-        optionsPath  = os.path.join(TTkEditConfig.pathCfg,'options.yaml')
+        os.makedirs(TTKEditorConfig.pathCfg, exist_ok=True)
+        optionsPath  = os.path.join(TTKEditorConfig.pathCfg,'options.yaml')
 
         def writeCfg(path, cfg):
             fullCfg = {
-                'version':TTkEditConfig.cfgVersion,
+                'version':TTKEditorConfig.cfgVersion,
                 'cfg':cfg }
             with open(path, 'w') as f:
                 yaml.dump(fullCfg, f, sort_keys=False, default_flow_style=False)
 
-        if options:  writeCfg(optionsPath,  TTkEditConfig.options)
+        if options:  writeCfg(optionsPath,  TTKEditorConfig.options)
 
     @staticmethod
     def load():
-        optionsPath  = os.path.join(TTkEditConfig.pathCfg,'options.yaml')
+        optionsPath  = os.path.join(TTKEditorConfig.pathCfg,'options.yaml')
 
         if os.path.exists(optionsPath):
             with open(optionsPath) as f:
-                TTkEditConfig.options = yaml.load(f, Loader=yaml.SafeLoader)['cfg']
+                TTKEditorConfig.options = yaml.load(f, Loader=yaml.SafeLoader)['cfg']

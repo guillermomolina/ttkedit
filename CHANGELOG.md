@@ -3,6 +3,7 @@
 ## Version 0.0.2
 
 - Renamed project to TTkEditor
+- Fix class names
 
 
 ## Version 0.0.1

@@ -62,7 +62,7 @@ TTKEDIT_COLORS = {
     Error:              TTkColor.fg('#FF0000') , # ('_brightred_',      '_brightred_'),
 }
 
-class TTkEditFormatter(Formatter):
+class TTKEditorFormatter(Formatter):
     class Data():
         __slots__=('lines', 'block', 'error', 'multiline')
         def __init__(self, lines, block):

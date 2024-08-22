@@ -25,7 +25,7 @@
 from TermTk import TTkLog
 from TermTk import TTkTextEditView
 
-class TTkEditTextEditView(TTkTextEditView):
+class TTKEditorTextEditView(TTkTextEditView):
     def keyEvent(self, evt) -> bool:
         self.document().getLock().acquire()
         ret = super().keyEvent(evt)

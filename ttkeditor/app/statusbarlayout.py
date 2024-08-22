@@ -27,8 +27,8 @@ from TermTk import TTkString
 from TermTk import TTkLabel
 from TermTk.TTkCore.constant import TTkK
 
-class TTkEditStatusBar(TTkHBoxLayout):
-    '''TTkEditStatusBar'''
+class TTkEditorStatusBarLayout(TTkHBoxLayout):
+    '''TTKEditorStatusBar'''
     __slots__ = ('_itemsLeft', '_itemsCenter', '_itemsRight')
     def __init__(self, *args, **kwargs):
         self._labels = []
