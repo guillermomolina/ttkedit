@@ -1,7 +1,6 @@
 # MIT License
 #
 # Copyright (c) 2024 Guillermo A. Molina <guillermoadrianmolina AT gmail DOT com>
-# Copyright (c) 2021 Eugenio Parodi <ceccopierangiolieugenio AT googlemail DOT com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .main import main
-from .exceptions import TTkEditorException, TTkEditorError, TTkEditorNYIError
 
-if __name__ == "__main__":
-    main()
+class TTkEditorError(Exception):
+    def __init__(self, message="TTk Editor fatal error"):
+        super().__init__(message)
+        self.message = message
+
+
+class TTkEditorException(TTkEditorError):
+    def __init__(self, message="TTk Editor exception"):
+        super().__init__(message)
+
+
+class TTkEditorNYIError(TTkEditorError):
+    def __init__(self, message="Not yet implemented error"):
+        super().__init__(message)

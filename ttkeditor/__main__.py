@@ -22,7 +22,6 @@
 # SOFTWARE.
 
 from .main import main
-from .exceptions import TTkEditorException, TTkEditorError, TTkEditorNYIError
 
 if __name__ == "__main__":
     main()

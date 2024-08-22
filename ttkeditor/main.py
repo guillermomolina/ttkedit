@@ -55,17 +55,12 @@ def main():
 
     TTkTheme.loadTheme(TTkTheme.NERD)
 
-    root = TTk(
-            title="TTk Editor",
-            mouseTrack=True,
-            layout=TTkGridLayout(),
-            sigmask=(
-                # TTkTerm.Sigmask.CTRL_C |
-                TTkTerm.Sigmask.CTRL_Q |
-                TTkTerm.Sigmask.CTRL_S |
-                TTkTerm.Sigmask.CTRL_Z ))
-
-    root.layout().addWidget(_d:=TTkEditorApp(fileName=args.filename))
+    root = TTk( layout=TTkEditorApp(files=args.filename), title="TTk Editor",
+                sigmask=(
+                    # TTkTerm.Sigmask.CTRL_C |
+                    TTkTerm.Sigmask.CTRL_Q |
+                    TTkTerm.Sigmask.CTRL_S |
+                    TTkTerm.Sigmask.CTRL_Z ))
 
     # if args.showkeys:
     #     _d.setWidget(widget=TTkKeyPressView(maxHeight=3), position=_d.FOOTER, size=3)

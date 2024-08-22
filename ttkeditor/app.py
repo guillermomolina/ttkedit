@@ -28,46 +28,46 @@ from TermTk import TTkCfg
 from TermTk import TTkColor
 from TermTk import TTkHelper
 from TermTk import TTkString
-from TermTk import TTkMenuBarLayout
 from TermTk import TTkKodeTab
 from TermTk import TTkAbout
 from TermTk import TTkFileDialogPicker
 from TermTk import TTkFileTree
 from TermTk import TTkTextEdit
 from TermTk import TTkShortcut
-from TermTk import TTkAppTemplate
+from TermTk import TTkSplitter
+from TermTk import TTkVBoxLayout
+from TermTk import TTkMenuBarLayout
 from TermTk import pyTTkSlot
 
 from .config import *
 from .about import *
 from .texteditview import TTKEditorTextEditView
 from .textdocument import TTKEditorTextDocument
-# from .statusbarlayout import TTkEditorStatusBarLayout
+from .statusbarlayout import TTkEditorStatusBarLayout
+from .frame import TTkEditorFrame
 
-class TTkEditorApp(TTkAppTemplate):
-    __slots__ = ('_toolBar', '_fileNameLabel', '_modified',
-                 '_sigslotEditor', '_treeInspector', '_windowEditor', '_notepad',
-                 '_fileName', '_currentPath',
-                 '_snapshot', '_snapId', '_snapSaved',
-                 # Signals
-                 'weModified', 'thingSelected', 'widgetNameChanged'
-                 '_kodeTab', '_documents')
+
+class TTkEditorApp(TTkVBoxLayout):
+    __slots__ = ('_modified', '_kodeTab', '_documents')
 
     def __init__(self, files=None, *args, **kwargs):
         self._documents = {}
         self._modified = False
 
         super().__init__(**kwargs)
-        appTemplate = self
 
-        appTemplate.setMenuBar(
-            appMenuBar := TTkMenuBarLayout(), TTkAppTemplate.MAIN)
-        # appTemplate.setFixed(True, TTkAppTemplate.HEADER)
+        menuFrame = TTkEditorFrame(border=False, maxHeight=1)
+        self.addWidget(menuFrame)
+        menuFrame.setMenuBar(appMenuBar := TTkMenuBarLayout(), TTkK.BOTTOM)
+ 
+        def _closeFile():
+            if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
+                self._kodeTab.lastUsed.removeTab(index)
 
         fileMenu = appMenuBar.addMenu("&File")
-        fileMenu.addMenu("&Open").menuButtonClicked.connect(
+        fileMenu.addMenu("Open").menuButtonClicked.connect(
             self._showFileDialog)
-        fileMenu.addMenu("&Close")
+        fileMenu.addMenu("Close").menuButtonClicked.connect(_closeFile)
         fileMenu.addMenu("E&xit Alt+X").menuButtonClicked.connect(self._quit)
         TTkShortcut(TTkK.ALT | TTkK.Key_X).activated.connect(self._quit)
 
@@ -81,27 +81,27 @@ class TTkEditorApp(TTkAppTemplate):
         def _showAboutTTk(btn):
             TTkHelper.overlay(None, TTkAbout(), 30, 10)
 
-        helpMenu = appMenuBar.addMenu("&Help", alignment=TTkK.RIGHT_ALIGN)
+        helpMenu = appMenuBar.addMenu(
+            "&Help", alignment=TTkK.RIGHT_ALIGN)
         helpMenu.addMenu("About ...").menuButtonClicked.connect(_showAbout)
         helpMenu.addMenu("About ttk").menuButtonClicked.connect(_showAboutTTk)
 
-        fileTree = TTkFileTree(path='.')
-        appTemplate.setWidget(fileTree, TTkAppTemplate.LEFT, 25)
+        # menuFrame.setstatusBar(statusBar := TTkEditorStatusBarLayout())
+        # statusBar.addLabel("ONLINE")
+
+        self.addWidget(splitter := TTkSplitter())
+
+        splitter.addWidget(fileTree := TTkFileTree(path='.'), 20)
+
+        fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
 
         if files is not None:
             for file in files:
                 self._openFile(file)
 
-        fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
-
         self._kodeTab = TTkKodeTab(border=False, closable=True)
-        appTemplate.setWidget(self._kodeTab, TTkAppTemplate.MAIN)
+        splitter.addWidget(self._kodeTab )
 
-        # self._statusBar = TTkEditorStatusBarLayout(maxHeight=1)
-        # self._statusBar.addLabel("ONLINE")
-        # appTemplate.setStatusBar(self._statusBar, TTkAppTemplate.MAIN)
-
-        
     pyTTkSlot()
 
     def _showFileDialog(self):
@@ -129,10 +129,6 @@ class TTkEditorApp(TTkAppTemplate):
         self._kodeTab.addTab(tedit, label)
         self._kodeTab.setCurrentWidget(tedit)
 
-        # def _closeFile():
-        #     if (index := KodeTab.lastUsed.currentIndex()) >= 0:
-        #         KodeTab.lastUsed.removeTab(index)
-
     def modified(self):
         return self._modified
 
@@ -148,7 +144,8 @@ class TTkEditorApp(TTkAppTemplate):
     def _quit(self):
         if self.modified():
             self.askToSave(
-                TTkString( f'Do you want to save the changes to this document before closing?\nIf you don\'t save, your changes will be lost.', TTkColor.BOLD),
+                TTkString(
+                    f'Do you want to save the changes to this document before closing?\nIf you don\'t save, your changes will be lost.', TTkColor.BOLD),
                 cb=TTkHelper.quit)
         else:
             TTkHelper.quit()
