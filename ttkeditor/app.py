@@ -35,7 +35,8 @@ from TermTk import TTkFileTree
 from TermTk import TTkTextEdit
 from TermTk import TTkShortcut
 from TermTk import TTkSplitter
-from TermTk import TTkVBoxLayout
+from TermTk import TTkGridLayout
+from TermTk import TTkFrame
 from TermTk import TTkMenuBarLayout
 from TermTk import pyTTkSlot
 
@@ -47,18 +48,16 @@ from .statusbarlayout import TTkEditorStatusBarLayout
 from .frame import TTkEditorFrame
 
 
-class TTkEditorApp(TTkVBoxLayout):
+class TTkEditorApp(TTkFrame):
     __slots__ = ('_modified', '_kodeTab', '_documents')
 
-    def __init__(self, files=None, *args, **kwargs):
+    def __init__(self, files=None, border=True, *args, **kwargs):
         self._documents = {}
         self._modified = False
 
-        super().__init__(**kwargs)
+        super().__init__(border=border, **kwargs)
 
-        menuFrame = TTkEditorFrame(border=False, maxHeight=1)
-        self.addWidget(menuFrame)
-        menuFrame.setMenuBar(appMenuBar := TTkMenuBarLayout(), TTkK.BOTTOM)
+        self.setMenuBar(appMenuBar := TTkMenuBarLayout(), TTkK.TOP)
  
         def _closeFile():
             if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
@@ -89,8 +88,8 @@ class TTkEditorApp(TTkVBoxLayout):
         # menuFrame.setstatusBar(statusBar := TTkEditorStatusBarLayout())
         # statusBar.addLabel("ONLINE")
 
+        self.setLayout(TTkGridLayout())
         self.addWidget(splitter := TTkSplitter())
-
         splitter.addWidget(fileTree := TTkFileTree(path='.'), 20)
 
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
@@ -149,3 +148,6 @@ class TTkEditorApp(TTkVBoxLayout):
                 cb=TTkHelper.quit)
         else:
             TTkHelper.quit()
+
+    def isVisible(self):
+        return True
