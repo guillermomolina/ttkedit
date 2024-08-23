@@ -91,7 +91,7 @@ class TTkEditorApp(TTkFrame):
         self._statusBar = TTkMenuBarLayout()
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
         self._cursorPosStatus = self._statusBar.addMenu(
-            "Ln xxx, Col yyy", alignment=TTkK.RIGHT_ALIGN)
+            "Ln 0, Col 0", alignment=TTkK.RIGHT_ALIGN)
         self._encodingStatus = self._statusBar.addMenu(
             "UTF-8", alignment=TTkK.RIGHT_ALIGN)
         self._languageStatus = self._statusBar.addMenu(
@@ -164,13 +164,11 @@ class TTkEditorApp(TTkFrame):
         else:
             TTkHelper.quit()
 
-    # def isVisible(self):
-    #     return True
-
     @pyTTkSlot(TTkTextCursor)
     def _cursorPositionChanged(self, cursor):
         cP = cursor.position()
         self._cursorPosStatus.setText(
             TTkString(f"Ln {cP.line+1}, Col {cP.pos+1}"))
-        # self._statusBar.update()
-        # self.update(updateLayout=True,updateParent=True,repaint=True)
+        # FIXME: We just need to resize, anyway
+        self._cursorPosStatus.setCheckable(False)
+        self._statusBar.update()
