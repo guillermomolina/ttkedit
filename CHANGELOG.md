@@ -5,6 +5,7 @@
 - Renamed project to TTkEditor
 - Fix class names
 - Add custom TTkStatusFrame
+- Show cursor position
 
 
 ## Version 0.0.1

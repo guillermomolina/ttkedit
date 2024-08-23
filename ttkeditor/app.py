@@ -38,19 +38,20 @@ from TermTk import TTkSplitter
 from TermTk import TTkGridLayout
 from TermTk import TTkFrame
 from TermTk import TTkMenuBarLayout
+from TermTk import TTkTextCursor
 from TermTk import pyTTkSlot
 
-from .config import *
-from .about import *
-from .texteditview import TTKEditorTextEditView
-from .textdocument import TTKEditorTextDocument
+from ttkeditor.about import TTKEditorAbout
+from ttkeditor.exceptions import TTkEditorNYIError
+from ttkeditor.texteditview import TTKEditorTextEditView
+from ttkeditor.textdocument import TTKEditorTextDocument
 
 
 class TTkEditorApp(TTkFrame):
     __slots__ = (
-            '_modified', '_kodeTab', '_documents',
-            '_cursorPosStatus', '_encodingStatus', '_languageStatus'
-        )
+        '_modified', '_kodeTab', '_documents',
+        '_cursorPosStatus', '_encodingStatus', '_languageStatus'
+    )
 
     def __init__(self, files=None, border=False, *args, **kwargs):
         self._documents = {}
@@ -87,14 +88,19 @@ class TTkEditorApp(TTkFrame):
         helpMenu.addMenu("About ...").menuButtonClicked.connect(_showAbout)
         helpMenu.addMenu("About ttk").menuButtonClicked.connect(_showAboutTTk)
 
-        statusBar = TTkMenuBarLayout()
-        self.setMenuBar(statusBar, TTkK.BOTTOM)
-        self._cursorPosStatus = statusBar.addMenu(
-            "Ln x, Col y", alignment=TTkK.RIGHT_ALIGN)
-        self._encodingStatus = statusBar.addMenu(
+        self._statusBar = TTkMenuBarLayout()
+        self.setMenuBar(self._statusBar, TTkK.BOTTOM)
+        self._cursorPosStatus = self._statusBar.addMenu(
+            "Ln xxx, Col yyy", alignment=TTkK.RIGHT_ALIGN)
+        self._encodingStatus = self._statusBar.addMenu(
             "UTF-8", alignment=TTkK.RIGHT_ALIGN)
-        self._languageStatus = statusBar.addMenu(
+        self._languageStatus = self._statusBar.addMenu(
             "Python", alignment=TTkK.RIGHT_ALIGN)
+
+        nf_cod_bell = ""
+        nf_cod_bell_dot = ""
+        self._notificationStatus = self._statusBar.addMenu(
+            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN)
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
@@ -129,6 +135,7 @@ class TTkEditorApp(TTkFrame):
         tview = TTKEditorTextEditView(document=doc, readOnly=False)
         tedit = TTkTextEdit(textEditView=tview,
                             lineNumber=True, lineNumberStarting=1)
+        doc.cursorPositionChanged.connect(self._cursorPositionChanged)
         doc.kodeHighlightUpdate.connect(tedit.update)
         label = TTkString(TTkCfg.theme.fileIcon.getIcon(
             filePath), TTkCfg.theme.fileIconColor) + TTkColor.RST + " " + os.path.basename(filePath)
@@ -157,5 +164,13 @@ class TTkEditorApp(TTkFrame):
         else:
             TTkHelper.quit()
 
-    def isVisible(self):
-        return True
+    # def isVisible(self):
+    #     return True
+
+    @pyTTkSlot(TTkTextCursor)
+    def _cursorPositionChanged(self, cursor):
+        cP = cursor.position()
+        self._cursorPosStatus.setText(
+            TTkString(f"Ln {cP.line+1}, Col {cP.pos+1}"))
+        # self._statusBar.update()
+        # self.update(updateLayout=True,updateParent=True,repaint=True)
