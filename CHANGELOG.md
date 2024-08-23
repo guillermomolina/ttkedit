@@ -9,4 +9,4 @@
 
 ## Version 0.0.1
 
-- Initial fork from [ttkode](https://github.com/ceccopierangiolieugenio/ttkode/blob/main/README.md)
+- Initial fork from [ttkode](https://github.com/ceccopierangiolieugenio/ttkode)
