@@ -44,14 +44,15 @@ from .config import *
 from .about import *
 from .texteditview import TTKEditorTextEditView
 from .textdocument import TTKEditorTextDocument
-from .statusbarlayout import TTkEditorStatusBarLayout
-from .frame import TTkStatusFrame
 
 
-class TTkEditorApp(TTkStatusFrame):
-    __slots__ = ('_modified', '_kodeTab', '_documents')
+class TTkEditorApp(TTkFrame):
+    __slots__ = (
+            '_modified', '_kodeTab', '_documents',
+            '_cursorPosStatus', '_encodingStatus', '_languageStatus'
+        )
 
-    def __init__(self, files=None, border=True, *args, **kwargs):
+    def __init__(self, files=None, border=False, *args, **kwargs):
         self._documents = {}
         self._modified = False
 
@@ -67,27 +68,33 @@ class TTkEditorApp(TTkStatusFrame):
         def _showAboutTTk(btn):
             TTkHelper.overlay(None, TTkAbout(), 30, 10)
 
-        appMenuBar = TTkMenuBarLayout()
-        self.setMenuBar(appMenuBar)
+        menuBar = TTkMenuBarLayout()
+        self.setMenuBar(menuBar)
 
-        fileMenu = appMenuBar.addMenu("&File")
+        fileMenu = menuBar.addMenu("&File")
         fileMenu.addMenu("Open").menuButtonClicked.connect(
             self._showFileDialog)
         fileMenu.addMenu("Close").menuButtonClicked.connect(_closeFile)
         fileMenu.addMenu("E&xit Alt+X").menuButtonClicked.connect(self._quit)
         TTkShortcut(TTkK.ALT | TTkK.Key_X).activated.connect(self._quit)
 
-        editMenu = appMenuBar.addMenu("&Edit")
+        editMenu = menuBar.addMenu("&Edit")
         editMenu.addMenu("Search")
         editMenu.addMenu("Replace")
 
-        helpMenu = appMenuBar.addMenu(
+        helpMenu = menuBar.addMenu(
             "&Help", alignment=TTkK.RIGHT_ALIGN)
         helpMenu.addMenu("About ...").menuButtonClicked.connect(_showAbout)
         helpMenu.addMenu("About ttk").menuButtonClicked.connect(_showAboutTTk)
 
-        self.setStatusBar(statusBar := TTkEditorStatusBarLayout())
-        statusBar.addLabel("ONLINE")
+        statusBar = TTkMenuBarLayout()
+        self.setMenuBar(statusBar, TTkK.BOTTOM)
+        self._cursorPosStatus = statusBar.addMenu(
+            "Ln x, Col y", alignment=TTkK.RIGHT_ALIGN)
+        self._encodingStatus = statusBar.addMenu(
+            "UTF-8", alignment=TTkK.RIGHT_ALIGN)
+        self._languageStatus = statusBar.addMenu(
+            "Python", alignment=TTkK.RIGHT_ALIGN)
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
