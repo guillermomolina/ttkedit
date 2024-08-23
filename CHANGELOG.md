@@ -4,6 +4,7 @@
 
 - Renamed project to TTkEditor
 - Fix class names
+- Add custom TTkStatusFrame
 
 
 ## Version 0.0.1

@@ -45,10 +45,10 @@ from .about import *
 from .texteditview import TTKEditorTextEditView
 from .textdocument import TTKEditorTextDocument
 from .statusbarlayout import TTkEditorStatusBarLayout
-from .frame import TTkEditorFrame
+from .frame import TTkStatusFrame
 
 
-class TTkEditorApp(TTkFrame):
+class TTkEditorApp(TTkStatusFrame):
     __slots__ = ('_modified', '_kodeTab', '_documents')
 
     def __init__(self, files=None, border=True, *args, **kwargs):
@@ -57,11 +57,18 @@ class TTkEditorApp(TTkFrame):
 
         super().__init__(border=border, **kwargs)
 
-        self.setMenuBar(appMenuBar := TTkMenuBarLayout(), TTkK.TOP)
- 
         def _closeFile():
             if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
                 self._kodeTab.lastUsed.removeTab(index)
+
+        def _showAbout(btn):
+            TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
+
+        def _showAboutTTk(btn):
+            TTkHelper.overlay(None, TTkAbout(), 30, 10)
+
+        appMenuBar = TTkMenuBarLayout()
+        self.setMenuBar(appMenuBar)
 
         fileMenu = appMenuBar.addMenu("&File")
         fileMenu.addMenu("Open").menuButtonClicked.connect(
@@ -74,32 +81,26 @@ class TTkEditorApp(TTkFrame):
         editMenu.addMenu("Search")
         editMenu.addMenu("Replace")
 
-        def _showAbout(btn):
-            TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
-
-        def _showAboutTTk(btn):
-            TTkHelper.overlay(None, TTkAbout(), 30, 10)
-
         helpMenu = appMenuBar.addMenu(
             "&Help", alignment=TTkK.RIGHT_ALIGN)
         helpMenu.addMenu("About ...").menuButtonClicked.connect(_showAbout)
         helpMenu.addMenu("About ttk").menuButtonClicked.connect(_showAboutTTk)
 
-        # menuFrame.setstatusBar(statusBar := TTkEditorStatusBarLayout())
-        # statusBar.addLabel("ONLINE")
+        self.setStatusBar(statusBar := TTkEditorStatusBarLayout())
+        statusBar.addLabel("ONLINE")
+
+        fileTree = TTkFileTree(path='.')
+        fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
+        self._kodeTab = TTkKodeTab(border=False, closable=True)
 
         self.setLayout(TTkGridLayout())
         self.addWidget(splitter := TTkSplitter())
-        splitter.addWidget(fileTree := TTkFileTree(path='.'), 20)
-
-        fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
+        splitter.addWidget(fileTree, 20)
+        splitter.addWidget(self._kodeTab)
 
         if files is not None:
             for file in files:
                 self._openFile(file)
-
-        self._kodeTab = TTkKodeTab(border=False, closable=True)
-        splitter.addWidget(self._kodeTab )
 
     pyTTkSlot()
 
