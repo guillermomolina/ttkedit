@@ -39,6 +39,8 @@ from TermTk import TTkGridLayout
 from TermTk import TTkFrame
 from TermTk import TTkMenuBarLayout
 from TermTk import TTkTextCursor
+from TermTk import TTkTabWidget
+from TermTk import TTkWidget
 from TermTk import pyTTkSlot
 
 from ttkeditor.about import TTKEditorAbout
@@ -50,7 +52,7 @@ from ttkeditor.textdocument import TTKEditorTextDocument
 class TTkEditorApp(TTkFrame):
     __slots__ = (
         '_modified', '_kodeTab', '_documents',
-        '_cursorPosStatus', '_encodingStatus', '_languageStatus'
+        '_cursorPositionStatus', '_encodingStatus', '_languageStatus'
     )
 
     def __init__(self, files=None, border=False, *args, **kwargs):
@@ -90,12 +92,12 @@ class TTkEditorApp(TTkFrame):
 
         self._statusBar = TTkMenuBarLayout()
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
-        self._cursorPosStatus = self._statusBar.addMenu(
-            "Ln 0, Col 0", alignment=TTkK.RIGHT_ALIGN)
+        self._cursorPositionStatus = self._statusBar.addMenu(
+            "-", alignment=TTkK.RIGHT_ALIGN)
         self._encodingStatus = self._statusBar.addMenu(
-            "UTF-8", alignment=TTkK.RIGHT_ALIGN)
+            "-", alignment=TTkK.RIGHT_ALIGN)
         self._languageStatus = self._statusBar.addMenu(
-            "Python", alignment=TTkK.RIGHT_ALIGN)
+            "-", alignment=TTkK.RIGHT_ALIGN)
 
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
@@ -105,6 +107,7 @@ class TTkEditorApp(TTkFrame):
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
         self._kodeTab = TTkKodeTab(border=False, closable=True)
+        self._kodeTab.currentChanged.connect(self._currentTabChanged)
 
         self.setLayout(TTkGridLayout())
         self.addWidget(splitter := TTkSplitter())
@@ -124,18 +127,20 @@ class TTkEditorApp(TTkFrame):
         TTkHelper.overlay(None, filePicker, 20, 5, True)
 
     def _openFile(self, filePath):
+        encoding = TTKEditorTextDocument.DEFAULT_ENCODING
         filePath = os.path.realpath(filePath)
         if filePath in self._documents:
             doc = self._documents[filePath]['doc']
         else:
-            with open(filePath, 'r') as f:
+            with open(filePath, 'r', encoding=encoding) as f:
                 content = f.read()
-            doc = TTKEditorTextDocument(text=content, filePath=filePath)
-            self._documents[filePath] = {'doc': doc, 'tabs': []}
+            doc = TTKEditorTextDocument(
+                text=content, filePath=filePath, encoding=encoding)
+            self._documents[filePath] = {'doc': doc, 'tabs': [], }
         tview = TTKEditorTextEditView(document=doc, readOnly=False)
         tedit = TTkTextEdit(textEditView=tview,
                             lineNumber=True, lineNumberStarting=1)
-        doc.cursorPositionChanged.connect(self._cursorPositionChanged)
+        doc.cursorPositionChanged.connect(self._setCursorPosition)
         doc.kodeHighlightUpdate.connect(tedit.update)
         label = TTkString(TTkCfg.theme.fileIcon.getIcon(
             filePath), TTkCfg.theme.fileIconColor) + TTkColor.RST + " " + os.path.basename(filePath)
@@ -165,10 +170,28 @@ class TTkEditorApp(TTkFrame):
             TTkHelper.quit()
 
     @pyTTkSlot(TTkTextCursor)
-    def _cursorPositionChanged(self, cursor):
+    def _setCursorPosition(self, cursor):
         cP = cursor.position()
-        self._cursorPosStatus.setText(
-            TTkString(f"Ln {cP.line+1}, Col {cP.pos+1}"))
-        # FIXME: We just need to resize, anyway
-        self._cursorPosStatus.setCheckable(False)
+        self._setCursorPositionStatusText(f"Ln {cP.line+1}, Col {cP.pos+1}")
+
+    def _setCursorPositionStatusText(self, text):
+        self._cursorPositionStatus.setText(TTkString(text))
+        # FIXME: We just neeud to resize, anyway
+        self._cursorPositionStatus.setCheckable(False)
         self._statusBar.update()
+
+    def _setEncodingStatus(self, encoding):
+        self._encodingStatus.setText(TTkString(encoding))
+        # FIXME: We just need to resize, anyway
+        self._encodingStatus.setCheckable(False)
+        self._statusBar.update()
+
+    @pyTTkSlot(TTkTabWidget, int, TTkWidget, object)
+    def _currentTabChanged(self, tabWidget, index, tview):
+        if tview is None:
+            self._setCursorPositionStatusText(" ")
+            self._setEncodingStatus(" ")
+        else:
+            tedit = tview.textEditView()
+            self._setCursorPosition(tedit.textCursor())
+            self._setEncodingStatus(tedit.document().encoding())

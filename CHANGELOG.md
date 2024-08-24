@@ -6,6 +6,7 @@
 - Fix class names
 - Add custom TTkStatusFrame
 - Show cursor position
+- Show encoding
 
 
 ## Version 0.0.1

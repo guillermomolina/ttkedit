@@ -40,8 +40,10 @@ from .formatter import TTKEditorFormatter
 
 class TTKEditorTextDocument(TTkTextDocument):
     _linesRefreshed = 30
+    DEFAULT_ENCODING = "UTF-8"
+
     __slots__ = (
-        '_filePath', '_timerRefresh',
+        '_filePath', '_encoding', '_timerRefresh',
         'kodeHighlightUpdate', '_kodeDocMutex',
         '_blocks', '_changedContent', '_refreshContent',
         '_lexer', '_formatter')
@@ -54,6 +56,7 @@ class TTKEditorTextDocument(TTkTextDocument):
         self._formatter = TTKEditorFormatter(style='gruvbox-dark')
         super().__init__(*args, **kwargs)
         self._filePath = kwargs.get('filePath', "")
+        self._encoding = kwargs.get('encoding', self.DEFAULT_ENCODING)
         self._timerRefresh = TTkTimer()
         self._timerRefresh.timeout.connect(self._refreshEvent)
         self._timerRefresh.start(0.3)
@@ -170,3 +173,6 @@ class TTKEditorTextDocument(TTkTextDocument):
 
     def filePath(self):
         return self._filePath
+
+    def encoding(self):
+        return self._encoding
