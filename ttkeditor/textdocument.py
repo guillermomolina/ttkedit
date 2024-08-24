@@ -46,11 +46,12 @@ class TTKEditorTextDocument(TTkTextDocument):
         '_filePath', '_encoding', '_timerRefresh',
         'kodeHighlightUpdate', '_kodeDocMutex',
         '_blocks', '_changedContent', '_refreshContent',
-        '_lexer', '_formatter')
+        '_lexer', '_formatter', 'lexerNameChanged')
 
     def __init__(self, *args, **kwargs):
         encoding = kwargs.get('encoding', self.DEFAULT_ENCODING)
         self.kodeHighlightUpdate = pyTTkSignal()
+        self.lexerNameChanged = pyTTkSignal(str)
         self._kodeDocMutex = Lock()
         self._lexer = None
         self._blocks = []
@@ -130,6 +131,8 @@ class TTKEditorTextDocument(TTkTextDocument):
             except ClassNotFound:
                 self._lexer = special.TextLexer(encoding=self._encoding)
 
+        self.lexerNameChanged.emit(self._lexer.name)
+
         # TTkLog.debug(f"Refresh {self._lexer.name} {ra=} {rb=}")
         tsl1 = [TTkString()]*(offset+1)
         block = [0]*(offset+1)
@@ -177,3 +180,6 @@ class TTKEditorTextDocument(TTkTextDocument):
 
     def encoding(self):
         return self._encoding
+
+    def lexer(self):
+        return self._lexer

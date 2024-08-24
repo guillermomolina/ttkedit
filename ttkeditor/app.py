@@ -62,8 +62,9 @@ class TTkEditorApp(TTkFrame):
         super().__init__(border=border, **kwargs)
 
         def _closeFile():
-            if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
-                self._kodeTab.lastUsed.removeTab(index)
+            if self._kodeTab.lastUsed:
+                if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
+                    self._kodeTab.lastUsed.removeTab(index)
 
         def _showAbout(btn):
             TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
@@ -93,11 +94,11 @@ class TTkEditorApp(TTkFrame):
         self._statusBar = TTkMenuBarLayout()
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
         self._cursorPositionStatus = self._statusBar.addMenu(
-            "-", alignment=TTkK.RIGHT_ALIGN)
+            "", alignment=TTkK.RIGHT_ALIGN)
         self._encodingStatus = self._statusBar.addMenu(
-            "-", alignment=TTkK.RIGHT_ALIGN)
+            "", alignment=TTkK.RIGHT_ALIGN)
         self._languageStatus = self._statusBar.addMenu(
-            "-", alignment=TTkK.RIGHT_ALIGN)
+            "", alignment=TTkK.RIGHT_ALIGN)
 
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
@@ -140,8 +141,9 @@ class TTkEditorApp(TTkFrame):
         tview = TTKEditorTextEditView(document=doc, readOnly=False)
         tedit = TTkTextEdit(textEditView=tview,
                             lineNumber=True, lineNumberStarting=1)
-        doc.cursorPositionChanged.connect(self._setCursorPosition)
+        doc.cursorPositionChanged.connect(self._cursorChanged)
         doc.kodeHighlightUpdate.connect(tedit.update)
+        doc.lexerNameChanged.connect(self._lexerNameChanged)
         label = TTkString(TTkCfg.theme.fileIcon.getIcon(
             filePath), TTkCfg.theme.fileIconColor) + TTkColor.RST + " " + os.path.basename(filePath)
 
@@ -170,11 +172,15 @@ class TTkEditorApp(TTkFrame):
             TTkHelper.quit()
 
     @pyTTkSlot(TTkTextCursor)
-    def _setCursorPosition(self, cursor):
+    def _cursorChanged(self, cursor):
         cP = cursor.position()
-        self._setCursorPositionStatusText(f"Ln {cP.line+1}, Col {cP.pos+1}")
+        self._setCursorPositionStatus(f"Ln {cP.line+1}, Col {cP.pos+1}")
 
-    def _setCursorPositionStatusText(self, text):
+    @pyTTkSlot(str)
+    def _lexerNameChanged(self, lexerName):
+        self._setLanguageStatus(lexerName)
+
+    def _setCursorPositionStatus(self, text):
         self._cursorPositionStatus.setText(TTkString(text))
         # FIXME: We just need to resize, anyway
         self._cursorPositionStatus.setCheckable(False)
@@ -186,12 +192,23 @@ class TTkEditorApp(TTkFrame):
         self._encodingStatus.setCheckable(False)
         self._statusBar.update()
 
+    def _setLanguageStatus(self, language):
+        self._languageStatus.setText(TTkString(language))
+        # FIXME: We just need to resize, anyway
+        self._languageStatus.setCheckable(False)
+        self._statusBar.update()
+
     @pyTTkSlot(TTkTabWidget, int, TTkWidget, object)
     def _currentTabChanged(self, tabWidget, index, tview):
         if tview is None:
-            self._setCursorPositionStatusText(" ")
-            self._setEncodingStatus(" ")
-        else:
-            tedit = tview.textEditView()
-            self._setCursorPosition(tedit.textCursor())
-            self._setEncodingStatus(tedit.document().encoding())
+            self._setCursorPositionStatus("")
+            self._setEncodingStatus("")
+            self._setLanguageStatus("")
+            return
+        tedit = tview.textEditView()
+        self._cursorChanged(tedit.textCursor())
+        doc = tedit.document()
+        self._setEncodingStatus(doc.encoding())
+        lexer = doc.lexer()
+        if lexer is not None:
+            self._setLanguageStatus(lexer.name)
