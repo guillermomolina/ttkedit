@@ -7,6 +7,7 @@
 - Add custom TTkStatusFrame
 - Show cursor position
 - Show encoding
+- Add encoding to lexer and formatter
 
 
 ## Version 0.0.1

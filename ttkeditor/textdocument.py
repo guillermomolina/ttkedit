@@ -49,14 +49,15 @@ class TTKEditorTextDocument(TTkTextDocument):
         '_lexer', '_formatter')
 
     def __init__(self, *args, **kwargs):
+        encoding = kwargs.get('encoding', self.DEFAULT_ENCODING)
         self.kodeHighlightUpdate = pyTTkSignal()
         self._kodeDocMutex = Lock()
         self._lexer = None
         self._blocks = []
-        self._formatter = TTKEditorFormatter(style='gruvbox-dark')
+        self._formatter = TTKEditorFormatter(style='gruvbox-dark', encoding=encoding)
         super().__init__(*args, **kwargs)
         self._filePath = kwargs.get('filePath', "")
-        self._encoding = kwargs.get('encoding', self.DEFAULT_ENCODING)
+        self._encoding = encoding
         self._timerRefresh = TTkTimer()
         self._timerRefresh.timeout.connect(self._refreshEvent)
         self._timerRefresh.start(0.3)
@@ -125,9 +126,9 @@ class TTKEditorTextDocument(TTkTextDocument):
         rawt = '\n'.join(rawl)
         if not self._lexer:
             try:
-                self._lexer = guess_lexer_for_filename(self._filePath, rawt)
+                self._lexer = guess_lexer_for_filename(self._filePath, rawt, encoding=self._encoding)
             except ClassNotFound:
-                self._lexer = special.TextLexer()
+                self._lexer = special.TextLexer(encoding=self._encoding)
 
         # TTkLog.debug(f"Refresh {self._lexer.name} {ra=} {rb=}")
         tsl1 = [TTkString()]*(offset+1)

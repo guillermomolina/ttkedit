@@ -100,7 +100,7 @@ class TTKEditorFormatter(Formatter):
                 color += TTkColor.UNDERLINE
             self._kodeStyles[token] = color
 
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def setDl(self,dl):
         self._dl = dl

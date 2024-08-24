@@ -176,7 +176,7 @@ class TTkEditorApp(TTkFrame):
 
     def _setCursorPositionStatusText(self, text):
         self._cursorPositionStatus.setText(TTkString(text))
-        # FIXME: We just neeud to resize, anyway
+        # FIXME: We just need to resize, anyway
         self._cursorPositionStatus.setCheckable(False)
         self._statusBar.update()
 
