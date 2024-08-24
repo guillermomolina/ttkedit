@@ -9,6 +9,7 @@
 - Show encoding
 - Add encoding to lexer and formatter
 - Show language
+- Change  status bar visitbility
 
 
 ## Version 0.0.1

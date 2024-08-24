@@ -95,10 +95,13 @@ class TTkEditorApp(TTkFrame):
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
         self._cursorPositionStatus = self._statusBar.addMenu(
             "", alignment=TTkK.RIGHT_ALIGN)
+        self._cursorPositionStatus.setVisible(False)
         self._encodingStatus = self._statusBar.addMenu(
             "", alignment=TTkK.RIGHT_ALIGN)
+        self._encodingStatus.setVisible(False)
         self._languageStatus = self._statusBar.addMenu(
             "", alignment=TTkK.RIGHT_ALIGN)
+        self._languageStatus.setVisible(False)
 
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
@@ -183,12 +186,14 @@ class TTkEditorApp(TTkFrame):
     def _setCursorPositionStatus(self, text):
         self._cursorPositionStatus.setText(TTkString(text))
         # FIXME: We just need to resize, anyway
+        self._cursorPositionStatus.setVisible(True)
         self._cursorPositionStatus.setCheckable(False)
         self._statusBar.update()
 
     def _setEncodingStatus(self, encoding):
         self._encodingStatus.setText(TTkString(encoding))
         # FIXME: We just need to resize, anyway
+        self._encodingStatus.setVisible(True)
         self._encodingStatus.setCheckable(False)
         self._statusBar.update()
 
@@ -196,18 +201,20 @@ class TTkEditorApp(TTkFrame):
         self._languageStatus.setText(TTkString(language))
         # FIXME: We just need to resize, anyway
         self._languageStatus.setCheckable(False)
+        self._languageStatus.setVisible(True)
         self._statusBar.update()
 
     @pyTTkSlot(TTkTabWidget, int, TTkWidget, object)
     def _currentTabChanged(self, tabWidget, index, tview):
         if tview is None:
-            self._setCursorPositionStatus("")
-            self._setEncodingStatus("")
-            self._setLanguageStatus("")
+            self._cursorPositionStatus.setVisible(False)
+            self._encodingStatus.setVisible(False)
+            self._languageStatus.setVisible(False)
             return
         tedit = tview.textEditView()
         self._cursorChanged(tedit.textCursor())
         doc = tedit.document()
+        tedit.setFocus()
         self._setEncodingStatus(doc.encoding())
         lexer = doc.lexer()
         if lexer is not None:
