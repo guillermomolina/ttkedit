@@ -42,6 +42,9 @@ from TermTk import TTkTextCursor
 from TermTk import TTkTabWidget
 from TermTk import TTkWidget
 from TermTk import pyTTkSlot
+from TermTk import TTkWindow
+from TermTk import TTkLog
+from TermTk import TTkLogViewer
 
 from ttkeditor.about import TTKEditorAbout
 from ttkeditor.exceptions import TTkEditorNYIError
@@ -71,6 +74,14 @@ class TTkEditorApp(TTkFrame):
 
         def _showAboutTTk(btn):
             TTkHelper.overlay(None, TTkAbout(), 30, 10)
+
+        self._logviewer =  TTkLogViewer(follow=True)
+
+        def _showLogViewer(btn):
+            logViewerWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
+                                flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
+            logViewerWindow.layout().addWidget(self._logviewer)
+            TTkHelper.overlay(None, logViewerWindow, 10, 5)
 
         menuBar = TTkMenuBarLayout()
         self.setMenuBar(menuBar)
@@ -106,7 +117,7 @@ class TTkEditorApp(TTkFrame):
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
         self._notificationStatus = self._statusBar.addMenu(
-            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN)
+            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(_showLogViewer)
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
@@ -114,7 +125,7 @@ class TTkEditorApp(TTkFrame):
         self._kodeTab.currentChanged.connect(self._currentTabChanged)
 
         self.setLayout(TTkGridLayout())
-        self.addWidget(splitter := TTkSplitter())
+        self.layout().addWidget(splitter := TTkSplitter())
         splitter.addWidget(fileTree, 20)
         splitter.addWidget(self._kodeTab)
 
@@ -200,8 +211,8 @@ class TTkEditorApp(TTkFrame):
     def _setLanguageStatus(self, language):
         self._languageStatus.setText(TTkString(language))
         # FIXME: We just need to resize, anyway
-        self._languageStatus.setCheckable(False)
         self._languageStatus.setVisible(True)
+        self._languageStatus.setCheckable(False)
         self._statusBar.update()
 
     @pyTTkSlot(TTkTabWidget, int, TTkWidget, object)
@@ -217,5 +228,7 @@ class TTkEditorApp(TTkFrame):
         tedit.setFocus()
         self._setEncodingStatus(doc.encoding())
         lexer = doc.lexer()
-        if lexer is not None:
+        if lexer is None:
+            self._languageStatus.setVisible(False)
+        else:
             self._setLanguageStatus(lexer.name)

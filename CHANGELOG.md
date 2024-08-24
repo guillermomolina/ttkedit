@@ -2,6 +2,11 @@
 
 ## Version 0.0.2
 
+- Add log viewer
+
+
+## Version 0.0.2
+
 - Renamed project to TTkEditor
 - Fix class names
 - Add custom TTkStatusFrame
