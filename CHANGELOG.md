@@ -1,8 +1,10 @@
 # TTkEditor change log
 
-## Version 0.0.2
+## Version 0.0.3
 
 - Add log viewer
+- Add tools menu
+- Add open log viewer in tab
 
 
 ## Version 0.0.2
@@ -14,7 +16,7 @@
 - Show encoding
 - Add encoding to lexer and formatter
 - Show language
-- Change  status bar visitbility
+- Change status bar visitbility
 
 
 ## Version 0.0.1

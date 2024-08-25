@@ -64,24 +64,7 @@ class TTkEditorApp(TTkFrame):
 
         super().__init__(border=border, **kwargs)
 
-        def _closeFile():
-            if self._kodeTab.lastUsed:
-                if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
-                    self._kodeTab.lastUsed.removeTab(index)
-
-        def _showAbout(btn):
-            TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
-
-        def _showAboutTTk(btn):
-            TTkHelper.overlay(None, TTkAbout(), 30, 10)
-
-        self._logviewer =  TTkLogViewer(follow=True)
-
-        def _showLogViewer(btn):
-            logViewerWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
-                                flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
-            logViewerWindow.layout().addWidget(self._logviewer)
-            TTkHelper.overlay(None, logViewerWindow, 10, 5)
+        self._logviewer = TTkLogViewer(follow=True)
 
         menuBar = TTkMenuBarLayout()
         self.setMenuBar(menuBar)
@@ -89,7 +72,7 @@ class TTkEditorApp(TTkFrame):
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addMenu("Open").menuButtonClicked.connect(
             self._showFileDialog)
-        fileMenu.addMenu("Close").menuButtonClicked.connect(_closeFile)
+        fileMenu.addMenu("Close").menuButtonClicked.connect(self._closeFile)
         fileMenu.addMenu("E&xit Alt+X").menuButtonClicked.connect(self._quit)
         TTkShortcut(TTkK.ALT | TTkK.Key_X).activated.connect(self._quit)
 
@@ -97,10 +80,16 @@ class TTkEditorApp(TTkFrame):
         editMenu.addMenu("Search")
         editMenu.addMenu("Replace")
 
+        toolsMenu = menuBar.addMenu("&Tools")
+        toolsMenu.addMenu("Logs").menuButtonClicked.connect(self._openLogViewer)
+        toolsMenu.addMenu("Terminal")
+
         helpMenu = menuBar.addMenu(
             "&Help", alignment=TTkK.RIGHT_ALIGN)
-        helpMenu.addMenu("About ...").menuButtonClicked.connect(_showAbout)
-        helpMenu.addMenu("About ttk").menuButtonClicked.connect(_showAboutTTk)
+        helpMenu.addMenu("About ...").menuButtonClicked.connect(
+            self._showAbout)
+        helpMenu.addMenu("About ttk").menuButtonClicked.connect(
+            self._showAboutTTk)
 
         self._statusBar = TTkMenuBarLayout()
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
@@ -117,7 +106,7 @@ class TTkEditorApp(TTkFrame):
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
         self._notificationStatus = self._statusBar.addMenu(
-            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(_showLogViewer)
+            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showLogViewer)
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
@@ -134,6 +123,27 @@ class TTkEditorApp(TTkFrame):
                 self._openFile(file)
 
     pyTTkSlot()
+
+    def _closeFile(self):
+        if self._kodeTab.lastUsed:
+            if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
+                self._kodeTab.lastUsed.removeTab(index)
+
+    def _showAbout(self, btn):
+        TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
+
+    def _showAboutTTk(self, btn):
+        TTkHelper.overlay(None, TTkAbout(), 30, 10)
+
+    def _showLogViewer(self, btn):
+        logViewerWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
+                                    flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
+        logViewerWindow.layout().addWidget(self._logviewer)
+        TTkHelper.overlay(None, logViewerWindow, 10, 5)
+
+    def _openLogViewer(self, btn):
+        self._kodeTab.addTab(self._logviewer, "Logs")
+        self._kodeTab.setCurrentWidget(self._logviewer)
 
     def _showFileDialog(self):
         filePicker = TTkFileDialogPicker(pos=(3, 3), size=(75, 24), caption="Pick Something", path=".", fileMode=TTkK.FileMode.AnyFile,
@@ -217,7 +227,7 @@ class TTkEditorApp(TTkFrame):
 
     @pyTTkSlot(TTkTabWidget, int, TTkWidget, object)
     def _currentTabChanged(self, tabWidget, index, tview):
-        if tview is None:
+        if tview is None or not isinstance(tview, TTkTextEdit):
             self._cursorPositionStatus.setVisible(False)
             self._encodingStatus.setVisible(False)
             self._languageStatus.setVisible(False)
