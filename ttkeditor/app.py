@@ -43,12 +43,13 @@ from TermTk import TTkTabWidget
 from TermTk import TTkWidget
 from TermTk import pyTTkSlot
 from TermTk import TTkWindow
-from TermTk import TTkLogViewer
+from TermTk.TTkTestWidgets.logviewer import _TTkLogViewer
 from TermTk import TTkTerminal
 from TermTk import TTkTerminalHelper
 
 from ttkeditor.about import TTKEditorAbout
 from ttkeditor.exceptions import TTkEditorNYIError
+from ttkeditor.logviewer import TTkEditorLogRepository, TTkEditorLogViewer
 from ttkeditor.texteditview import TTKEditorTextEditView
 from ttkeditor.textdocument import TTKEditorTextDocument
 
@@ -65,7 +66,7 @@ class TTkEditorApp(TTkFrame):
 
         super().__init__(border=border, **kwargs)
 
-        self._logviewer = TTkLogViewer(follow=True)
+        self._logRepository = TTkEditorLogRepository()
 
         menuBar = TTkMenuBarLayout()
         self.setMenuBar(menuBar)
@@ -107,7 +108,7 @@ class TTkEditorApp(TTkFrame):
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
         self._notificationStatus = self._statusBar.addMenu(
-            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showLogViewerDialog)
+            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showNotificationsDialog)
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFileTab(x.path()))
@@ -136,15 +137,17 @@ class TTkEditorApp(TTkFrame):
     def _showAboutTTkDialog(self, btn):
         TTkHelper.overlay(None, TTkAbout(), 30, 10)
 
-    def _showLogViewerDialog(self, btn):
-        logViewerWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
+    def _showNotificationsDialog(self, btn):
+        notificationsWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
                                     flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
-        logViewerWindow.layout().addWidget(self._logviewer)
-        TTkHelper.overlay(None, logViewerWindow, 10, 5)
+        logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
+        notificationsWindow.layout().addWidget(logViewer)
+        TTkHelper.overlay(None, notificationsWindow, 10, 5)
 
     def _openLogViewerTab(self, btn):
-        self._kodeTab.addTab(self._logviewer, "Logs")
-        self._kodeTab.setCurrentWidget(self._logviewer)
+        logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
+        self._kodeTab.addTab(logViewer, "Logs")
+        self._kodeTab.setCurrentWidget(logViewer)
 
     def _openTerminalTab(self):
         term = TTkTerminal()

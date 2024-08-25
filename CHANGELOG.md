@@ -6,6 +6,7 @@
 - Add tools menu
 - Add open log viewer in tab
 - Add terminal in tab
+- Add custom log viewer
 
 
 ## Version 0.0.2
