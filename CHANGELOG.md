@@ -3,6 +3,7 @@
 ## Version 0.0.4
 
 - Change layout, move terminals and logs to the bottom
+- Rebase TTkEditorApp to TTkAppTemplate
 
 
 ## Version 0.0.3

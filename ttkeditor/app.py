@@ -36,14 +36,13 @@ from TermTk import TTkTextEdit
 from TermTk import TTkShortcut
 from TermTk import TTkSplitter
 from TermTk import TTkGridLayout
-from TermTk import TTkFrame
+from TermTk import TTkAppTemplate
 from TermTk import TTkMenuBarLayout
 from TermTk import TTkTextCursor
 from TermTk import TTkTabWidget
 from TermTk import TTkWidget
 from TermTk import pyTTkSlot
 from TermTk import TTkWindow
-from TermTk.TTkTestWidgets.logviewer import _TTkLogViewer
 from TermTk import TTkTerminal
 from TermTk import TTkTerminalHelper
 
@@ -54,9 +53,9 @@ from ttkeditor.texteditview import TTKEditorTextEditView
 from ttkeditor.textdocument import TTKEditorTextDocument
 
 
-class TTkEditorApp(TTkFrame):
+class TTkEditorApp(TTkAppTemplate):
     __slots__ = (
-        '_modified', '_kodeTab', '_documents',
+        '_modified', '_codeView', '_documents',
         '_cursorPositionStatus', '_encodingStatus', '_languageStatus'
     )
 
@@ -69,7 +68,9 @@ class TTkEditorApp(TTkFrame):
         self._logRepository = TTkEditorLogRepository()
 
         menuBar = TTkMenuBarLayout()
-        self.setMenuBar(menuBar)
+        self.setMenuBar(menuBar, TTkAppTemplate.HEADER)
+        self.setFixed(True, TTkAppTemplate.HEADER)
+        self.setBorder(False, TTkAppTemplate.HEADER)
 
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addMenu("Open").menuButtonClicked.connect(
@@ -94,7 +95,8 @@ class TTkEditorApp(TTkFrame):
             self._showAboutTTkDialog)
 
         self._statusBar = TTkMenuBarLayout()
-        self.setMenuBar(self._statusBar, TTkK.BOTTOM)
+        self.setMenuBar(self._statusBar,  TTkAppTemplate.FOOTER)
+        self.setFixed(True, TTkAppTemplate.FOOTER)
         self._cursorPositionStatus = self._statusBar.addMenu(
             "", alignment=TTkK.RIGHT_ALIGN)
         self._cursorPositionStatus.setVisible(False)
@@ -112,17 +114,15 @@ class TTkEditorApp(TTkFrame):
 
         fileTree = TTkFileTree(path='.')
         fileTree.fileActivated.connect(lambda x: self._openFileTab(x.path()))
-        self._kodeTab = TTkKodeTab(border=False, closable=True)
-        self._kodeTab.currentChanged.connect(self._currentTabChanged)
+        self._codeView = TTkKodeTab(border=False, closable=True)
+        self._codeView.currentChanged.connect(self._currentTabChanged)
 
-        self._tabWidget = TTkKodeTab(border=False, closable=True)
+        self._toolsView = TTkKodeTab(border=False, closable=True)
+        self._toolsView.setVisible(False)
 
-        self.setLayout(TTkGridLayout())
-        self.layout().addWidget(vSplitter := TTkSplitter())
-        vSplitter.addWidget(fileTree, 20)
-        vSplitter.addWidget(hSplitter := TTkSplitter(orientation=TTkK.VERTICAL))
-        hSplitter.addWidget(self._kodeTab)
-        hSplitter.addWidget(self._tabWidget, 10)
+        self.setWidget(fileTree, TTkAppTemplate.LEFT, 20)
+        self.setWidget(self._codeView)
+        self.setWidget(self._toolsView, TTkAppTemplate.BOTTOM, 10)
 
         if files is not None:
             for file in files:
@@ -131,9 +131,9 @@ class TTkEditorApp(TTkFrame):
     pyTTkSlot()
 
     def _closeFile(self):
-        if self._kodeTab.lastUsed:
-            if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
-                self._kodeTab.lastUsed.removeTab(index)
+        if self._codeView.lastUsed:
+            if (index := self._codeView.lastUsed.currentIndex()) >= 0:
+                self._codeView.lastUsed.removeTab(index)
 
     def _showAboutDialog(self, btn):
         TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
@@ -150,14 +150,16 @@ class TTkEditorApp(TTkFrame):
 
     def _openLogViewerTab(self, btn):
         logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
-        self._tabWidget.addTab(logViewer, "Logs")
-        self._tabWidget.setCurrentWidget(logViewer)
+        self._toolsView.addTab(logViewer, "Logs")
+        self._toolsView.setCurrentWidget(logViewer)
+        self._toolsView.setVisible(True)
 
     def _openTerminalTab(self):
         term = TTkTerminal()
         th = TTkTerminalHelper(term=term)
-        self._tabWidget.addTab(term, f"Terminal")
-        self._tabWidget.setCurrentWidget(term)
+        self._toolsView.addTab(term, f"Terminal")
+        self._toolsView.setCurrentWidget(term)
+        self._toolsView.setVisible(True)
         th.runShell()
 
     def _showFileDialog(self):
@@ -186,8 +188,8 @@ class TTkEditorApp(TTkFrame):
         label = TTkString(TTkCfg.theme.fileIcon.getIcon(
             filePath), TTkCfg.theme.fileIconColor) + TTkColor.RST + " " + os.path.basename(filePath)
 
-        self._kodeTab.addTab(tedit, label)
-        self._kodeTab.setCurrentWidget(tedit)
+        self._codeView.addTab(tedit, label)
+        self._codeView.setCurrentWidget(tedit)
 
     def modified(self):
         return self._modified
