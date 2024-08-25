@@ -43,8 +43,9 @@ from TermTk import TTkTabWidget
 from TermTk import TTkWidget
 from TermTk import pyTTkSlot
 from TermTk import TTkWindow
-from TermTk import TTkLog
 from TermTk import TTkLogViewer
+from TermTk import TTkTerminal
+from TermTk import TTkTerminalHelper
 
 from ttkeditor.about import TTKEditorAbout
 from ttkeditor.exceptions import TTkEditorNYIError
@@ -81,15 +82,15 @@ class TTkEditorApp(TTkFrame):
         editMenu.addMenu("Replace")
 
         toolsMenu = menuBar.addMenu("&Tools")
-        toolsMenu.addMenu("Logs").menuButtonClicked.connect(self._openLogViewer)
-        toolsMenu.addMenu("Terminal")
+        toolsMenu.addMenu("Logs").menuButtonClicked.connect(self._openLogViewerTab)
+        toolsMenu.addMenu("Terminal").menuButtonClicked.connect(self._openTerminalTab)
 
         helpMenu = menuBar.addMenu(
             "&Help", alignment=TTkK.RIGHT_ALIGN)
         helpMenu.addMenu("About ...").menuButtonClicked.connect(
-            self._showAbout)
+            self._showAboutDialog)
         helpMenu.addMenu("About ttk").menuButtonClicked.connect(
-            self._showAboutTTk)
+            self._showAboutTTkDialog)
 
         self._statusBar = TTkMenuBarLayout()
         self.setMenuBar(self._statusBar, TTkK.BOTTOM)
@@ -106,10 +107,10 @@ class TTkEditorApp(TTkFrame):
         nf_cod_bell = ""
         nf_cod_bell_dot = ""
         self._notificationStatus = self._statusBar.addMenu(
-            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showLogViewer)
+            nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showLogViewerDialog)
 
         fileTree = TTkFileTree(path='.')
-        fileTree.fileActivated.connect(lambda x: self._openFile(x.path()))
+        fileTree.fileActivated.connect(lambda x: self._openFileTab(x.path()))
         self._kodeTab = TTkKodeTab(border=False, closable=True)
         self._kodeTab.currentChanged.connect(self._currentTabChanged)
 
@@ -120,7 +121,7 @@ class TTkEditorApp(TTkFrame):
 
         if files is not None:
             for file in files:
-                self._openFile(file)
+                self._openFileTab(file)
 
     pyTTkSlot()
 
@@ -129,29 +130,36 @@ class TTkEditorApp(TTkFrame):
             if (index := self._kodeTab.lastUsed.currentIndex()) >= 0:
                 self._kodeTab.lastUsed.removeTab(index)
 
-    def _showAbout(self, btn):
+    def _showAboutDialog(self, btn):
         TTkHelper.overlay(None, TTKEditorAbout(), 30, 10)
 
-    def _showAboutTTk(self, btn):
+    def _showAboutTTkDialog(self, btn):
         TTkHelper.overlay(None, TTkAbout(), 30, 10)
 
-    def _showLogViewer(self, btn):
+    def _showLogViewerDialog(self, btn):
         logViewerWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
                                     flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
         logViewerWindow.layout().addWidget(self._logviewer)
         TTkHelper.overlay(None, logViewerWindow, 10, 5)
 
-    def _openLogViewer(self, btn):
+    def _openLogViewerTab(self, btn):
         self._kodeTab.addTab(self._logviewer, "Logs")
         self._kodeTab.setCurrentWidget(self._logviewer)
+
+    def _openTerminalTab(self):
+        term = TTkTerminal()
+        th = TTkTerminalHelper(term=term)
+        self._kodeTab.addTab(term, f"Terminal")
+        self._kodeTab.setCurrentWidget(term)
+        th.runShell()
 
     def _showFileDialog(self):
         filePicker = TTkFileDialogPicker(pos=(3, 3), size=(75, 24), caption="Pick Something", path=".", fileMode=TTkK.FileMode.AnyFile,
                                          filter="All Files (*);;Python Files (*.py);;Bash scripts (*.sh);;Markdown Files (*.md)")
-        filePicker.pathPicked.connect(self._openFile)
+        filePicker.pathPicked.connect(self._openFileTab)
         TTkHelper.overlay(None, filePicker, 20, 5, True)
 
-    def _openFile(self, filePath):
+    def _openFileTab(self, filePath):
         encoding = TTKEditorTextDocument.DEFAULT_ENCODING
         filePath = os.path.realpath(filePath)
         if filePath in self._documents:
