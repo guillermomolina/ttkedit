@@ -75,13 +75,13 @@ class _TTkEditorLogViewer(TTkAbstractScrollView):
         self.viewMoveTo(offx, offy)
         self.update()
 
-    def viewFullAreaSize(self) -> (int, int):
+    def viewFullAreaSize(self) -> tuple[int, int]:
         messages = self._logRepository.messages()
         w = max( m.termWidth() for m in messages)
         h = len(messages)
         return w , h
 
-    def viewDisplayedSize(self) -> (int, int):
+    def viewDisplayedSize(self) -> tuple[int, int]:
         return self.size()
 
     def paintEvent(self, canvas):
