@@ -34,7 +34,6 @@ from TermTk import TTkFileDialogPicker
 from TermTk import TTkFileTree
 from TermTk import TTkTextEdit
 from TermTk import TTkShortcut
-from TermTk import TTkSplitter
 from TermTk import TTkGridLayout
 from TermTk import TTkAppTemplate
 from TermTk import TTkMenuBarLayout
@@ -45,6 +44,7 @@ from TermTk import pyTTkSlot
 from TermTk import TTkWindow
 from TermTk import TTkTerminal
 from TermTk import TTkTerminalHelper
+from TermTk import TTkVBoxLayout
 
 from ttkeditor.about import TTKEditorAbout
 from ttkeditor.exceptions import TTkEditorNYIError
@@ -67,6 +67,18 @@ class TTkEditorApp(TTkAppTemplate):
 
         self._logRepository = TTkEditorLogRepository()
 
+        self._sidePanel = TTkFileTree(path='.')
+        self._sidePanel.fileActivated.connect(lambda x: self._openFileTab(x.path()))
+
+        self._codeView = TTkKodeTab(border=False, closable=True)
+        self._codeView.currentChanged.connect(self._currentTabChanged)
+
+        self._toolsView = TTkKodeTab(border=False, closable=True)
+
+        self.setWidget(self._sidePanel, TTkAppTemplate.LEFT, 20)
+        self.setWidget(self._codeView)
+        self.setWidget(self._toolsView, TTkAppTemplate.BOTTOM, 10)
+
         menuBar = TTkMenuBarLayout()
         self.setMenuBar(menuBar, TTkAppTemplate.HEADER)
         self.setFixed(True, TTkAppTemplate.HEADER)
@@ -84,8 +96,18 @@ class TTkEditorApp(TTkAppTemplate):
         editMenu.addMenu("Replace")
 
         toolsMenu = menuBar.addMenu("&Tools")
-        toolsMenu.addMenu("Logs").menuButtonClicked.connect(self._openLogViewerTab)
-        toolsMenu.addMenu("Terminal").menuButtonClicked.connect(self._openTerminalTab)
+        toolsMenu.addMenu("Logs").menuButtonClicked.connect(
+            self._openLogViewerTab)
+        toolsMenu.addMenu("Terminal").menuButtonClicked.connect(
+            self._openTerminalTab)
+
+        panelsMenu = menuBar.addMenu("&Panels", alignment=TTkK.RIGHT_ALIGN)
+        self._sidePanelToggler = panelsMenu.addMenu("Side panel", checkable=True, checked=True)
+        self._sidePanelToggler.toggled.connect(self._sidePanel.setVisible)
+
+        self._toolsViewToggler = panelsMenu.addMenu("Tools panel", checkable=True, checked=False)
+        self._toolsViewToggler.toggled.connect(self._toolsView.setVisible)
+        self._toolsView.setVisible(False)
 
         helpMenu = menuBar.addMenu(
             "&Help", alignment=TTkK.RIGHT_ALIGN)
@@ -112,18 +134,6 @@ class TTkEditorApp(TTkAppTemplate):
         self._notificationStatus = self._statusBar.addMenu(
             nf_cod_bell, alignment=TTkK.RIGHT_ALIGN).menuButtonClicked.connect(self._showNotificationsDialog)
 
-        fileTree = TTkFileTree(path='.')
-        fileTree.fileActivated.connect(lambda x: self._openFileTab(x.path()))
-        self._codeView = TTkKodeTab(border=False, closable=True)
-        self._codeView.currentChanged.connect(self._currentTabChanged)
-
-        self._toolsView = TTkKodeTab(border=False, closable=True)
-        self._toolsView.setVisible(False)
-
-        self.setWidget(fileTree, TTkAppTemplate.LEFT, 20)
-        self.setWidget(self._codeView)
-        self.setWidget(self._toolsView, TTkAppTemplate.BOTTOM, 10)
-
         if files is not None:
             for file in files:
                 self._openFileTab(file)
@@ -143,7 +153,7 @@ class TTkEditorApp(TTkAppTemplate):
 
     def _showNotificationsDialog(self, btn):
         notificationsWindow = TTkWindow(size=(80, 20), title="Log viewr", layout=TTkGridLayout(),
-                                    flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
+                                        flags=TTkK.WindowFlag.WindowMaximizeButtonHint | TTkK.WindowFlag.WindowCloseButtonHint)
         logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
         notificationsWindow.layout().addWidget(logViewer)
         TTkHelper.overlay(None, notificationsWindow, 10, 5)
@@ -152,14 +162,14 @@ class TTkEditorApp(TTkAppTemplate):
         logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
         self._toolsView.addTab(logViewer, "Logs")
         self._toolsView.setCurrentWidget(logViewer)
-        self._toolsView.setVisible(True)
+        self._toolsViewToggler.setChecked(True)
 
     def _openTerminalTab(self):
         term = TTkTerminal()
-        th = TTkTerminalHelper(term=term)
         self._toolsView.addTab(term, f"Terminal")
         self._toolsView.setCurrentWidget(term)
-        self._toolsView.setVisible(True)
+        self._toolsViewToggler.setChecked(True)
+        th = TTkTerminalHelper(term=term)
         th.runShell()
 
     def _showFileDialog(self):
