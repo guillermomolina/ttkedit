@@ -1,5 +1,10 @@
 # TTkEditor change log
 
+## Version 0.0.4
+
+- Change layout, move terminals and logs to the bottom
+
+
 ## Version 0.0.3
 
 - Add log viewer

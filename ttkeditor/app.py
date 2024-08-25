@@ -115,10 +115,14 @@ class TTkEditorApp(TTkFrame):
         self._kodeTab = TTkKodeTab(border=False, closable=True)
         self._kodeTab.currentChanged.connect(self._currentTabChanged)
 
+        self._tabWidget = TTkKodeTab(border=False, closable=True)
+
         self.setLayout(TTkGridLayout())
-        self.layout().addWidget(splitter := TTkSplitter())
-        splitter.addWidget(fileTree, 20)
-        splitter.addWidget(self._kodeTab)
+        self.layout().addWidget(vSplitter := TTkSplitter())
+        vSplitter.addWidget(fileTree, 20)
+        vSplitter.addWidget(hSplitter := TTkSplitter(orientation=TTkK.VERTICAL))
+        hSplitter.addWidget(self._kodeTab)
+        hSplitter.addWidget(self._tabWidget, 10)
 
         if files is not None:
             for file in files:
@@ -146,14 +150,14 @@ class TTkEditorApp(TTkFrame):
 
     def _openLogViewerTab(self, btn):
         logViewer = TTkEditorLogViewer(self._logRepository, follow=True)
-        self._kodeTab.addTab(logViewer, "Logs")
-        self._kodeTab.setCurrentWidget(logViewer)
+        self._tabWidget.addTab(logViewer, "Logs")
+        self._tabWidget.setCurrentWidget(logViewer)
 
     def _openTerminalTab(self):
         term = TTkTerminal()
         th = TTkTerminalHelper(term=term)
-        self._kodeTab.addTab(term, f"Terminal")
-        self._kodeTab.setCurrentWidget(term)
+        self._tabWidget.addTab(term, f"Terminal")
+        self._tabWidget.setCurrentWidget(term)
         th.runShell()
 
     def _showFileDialog(self):

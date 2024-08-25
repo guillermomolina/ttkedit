@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 AUTHOR = "Guillermo Adrián Molina"
 AUTHOR_EMAIL = "guillermoadrianmolina@gmail.com"
 NAME = "ttkeditor"
