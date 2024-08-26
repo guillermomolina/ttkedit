@@ -44,10 +44,13 @@ from TermTk import pyTTkSlot
 from TermTk import TTkWindow
 from TermTk import TTkTerminal
 from TermTk import TTkTerminalHelper
-from TermTk import TTkVBoxLayout
+from TermTk import TTkSplitter
+from TermTk import TTkList
+from TermTk import TTkAbstractListItem
 
 from ttkeditor.about import TTKEditorAbout
 from ttkeditor.exceptions import TTkEditorNYIError
+from ttkeditor.kodetab import TTkEditorKodeTab
 from ttkeditor.logviewer import TTkEditorLogRepository, TTkEditorLogViewer
 from ttkeditor.texteditview import TTKEditorTextEditView
 from ttkeditor.textdocument import TTKEditorTextDocument
@@ -67,11 +70,17 @@ class TTkEditorApp(TTkAppTemplate):
 
         self._logRepository = TTkEditorLogRepository()
 
-        self._sidePanel = TTkFileTree(path='.')
-        self._sidePanel.fileActivated.connect(lambda x: self._openFileTab(x.path()))
+        self._sidePanel = TTkSplitter(orientation=TTkK.VERTICAL)
+        self._openEditors = TTkList()
+        self._openEditors.itemClicked.connect(self._openEditorsItemClicked)
+        self._sidePanel.addWidget(self._openEditors, 5)
+        fileTree = TTkFileTree(path='.')
+        fileTree.fileActivated.connect(lambda x: self._openFileTab(x.path()))
+        self._sidePanel.addWidget(fileTree)
 
-        self._codeView = TTkKodeTab(border=False, closable=True)
+        self._codeView = TTkEditorKodeTab(border=False, closable=True)
         self._codeView.currentChanged.connect(self._currentTabChanged)
+        self._codeView.tabCloseRequested.connect(self._tabCloseRequested)
 
         self._toolsView = TTkKodeTab(border=False, closable=True)
 
@@ -201,6 +210,12 @@ class TTkEditorApp(TTkAppTemplate):
         self._codeView.addTab(tedit, label)
         self._codeView.setCurrentWidget(tedit)
 
+        self._openEditors.addItem(li := TTkAbstractListItem(text=label, data=tedit))
+        self._openEditors.setCurrentItem(li)                  
+ 
+    def _openEditorsItemClicked(self, item):
+        self._codeView.setCurrentWidget(item.data())
+
     def modified(self):
         return self._modified
 
@@ -269,3 +284,10 @@ class TTkEditorApp(TTkAppTemplate):
             self._languageStatus.setVisible(False)
         else:
             self._setLanguageStatus(lexer.name)
+
+    @pyTTkSlot(TTkTabWidget, int)
+    def _tabCloseRequested(self, tabWidget, index):
+        widget = tabWidget.widget(index)
+        for index, item in enumerate(self._openEditors.items()):
+            if item.data() == widget:
+                self._openEditors.removeAt(index)

@@ -5,6 +5,7 @@
 - Change layout, move terminals and logs to the bottom
 - Rebase TTkEditorApp to TTkAppTemplate
 - Add panels toggler menu
+- Add open editors to side panel
 
 
 ## Version 0.0.3
